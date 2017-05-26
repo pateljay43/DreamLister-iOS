@@ -21,62 +21,18 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
         tableView.delegate = self
         tableView.dataSource = self
         
-//        generateTestData()
-        attemptFetch()
-    }
-
-    func configCell(_ cell: ItemCell, for path: IndexPath) {
-        cell.configCell(controller.object(at: path))
+        attemptFetch("created", ascending: false)
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as! ItemCell
-        configCell(cell, for: indexPath)
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 150
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let sections = controller.sections {
-            return sections[section].numberOfObjects
-        }
-        return 0
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let objs = controller.fetchedObjects , objs.count > 0 {
-            let item = objs[indexPath.row]
-            performSegue(withIdentifier: "oldItem", sender: item)
-        }
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        if let sections = controller.sections {
-            return sections.count
-        }
-        return 0
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "oldItem" {
-            if let dest = segue.destination as? ItemDetailsVC{
-                if let item = sender as? Item {
-                    dest.itemToEdit = item
-                }
-            }
-        }
-    }
-    
-    func attemptFetch() {
+    func attemptFetch(_ sortBy: String, ascending: Bool) {
         let fetchReq: NSFetchRequest<Item> = Item.fetchRequest()
         
         // default in segment "Newest"
         // key : "created" field in the datamodel
-        let dateSort = NSSortDescriptor(key: "created", ascending: false)
-        fetchReq.sortDescriptors = [dateSort]
+        let sort = NSSortDescriptor(key: sortBy, ascending: ascending)
+        
+        // sort based on the selected segment type
+        fetchReq.sortDescriptors = [sort]
         
         // In iOS 10: persistentContainer handles the NSManagedObjectContext
         // sectionNameKeyPath = nil -> return all the results
@@ -87,6 +43,51 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
             try controller.performFetch()
         } catch let err as NSError {
             print(err.debugDescription)
+        }
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        if let sections = controller.sections {
+            return sections.count
+        }
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let sections = controller.sections {
+            return sections[section].numberOfObjects
+        }
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 150
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as! ItemCell
+        configCell(cell, for: indexPath)
+        return cell
+    }
+    
+    func configCell(_ cell: ItemCell, for path: IndexPath) {
+        cell.configCell(controller.object(at: path))
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let objs = controller.fetchedObjects , objs.count > 0 {
+            let item = objs[indexPath.row]
+            performSegue(withIdentifier: "oldItem", sender: item)
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "oldItem" {
+            if let dest = segue.destination as? ItemDetailsVC{
+                if let item = sender as? Item {
+                    dest.itemToEdit = item
+                }
+            }
         }
     }
     
