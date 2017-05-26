@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
+class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var img: UIImageView!
     @IBOutlet weak var lblTitle: CustomTextField!
@@ -19,6 +19,7 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
 
     var stores = [Store]()
     var itemToEdit: Item?
+    var imgPicker: UIImagePickerController!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,15 +28,8 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
         picker.delegate = self
         picker.dataSource = self
         
-//        let store = Store(context: context)
-//        store.name = "Apple"
-//        let store2 = Store(context: context)
-//        store2.name = "Best Buy"
-//        let store3 = Store(context: context)
-//        store3.name = "Costco"
-//        let store4 = Store(context: context)
-//        store4.name = "Tesla Dealership"
-//        appDelegate.saveContext()
+        imgPicker = UIImagePickerController()
+        imgPicker.delegate = self
         
         fetchStores()
         loadItemData()
@@ -58,8 +52,12 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            img.image = image
+        }
+        imgPicker.dismiss(animated: true, completion: nil)
     }
     
     func fetchStores() {
@@ -105,9 +103,13 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
             item.details = details
         }
         
+        // we need to create new Image entity to assign it to 'item.toImage'
+        let picture = Image(context: context)
+        picture.image = img.image
+        item.toImage = picture
+        
         // assigning store via 'toStore' relationship
         item.toStore = stores[picker.selectedRow(inComponent: 0)]
-        
         appDelegate.saveContext()
         
         navigationController?.popViewController(animated: true)
