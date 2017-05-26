@@ -20,6 +20,7 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        segment.addTarget(self, action: #selector(MainVC.segmentChanged(_:)), for: .valueChanged)
         
         attemptFetch("created", ascending: false)
     }
@@ -129,6 +130,12 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
             }
             break
         }
+    }
+    
+    func segmentChanged(_ sender: Any) {
+        let sortBy = (segment.selectedSegmentIndex == 0) ? "created" : (segment.selectedSegmentIndex == 1) ? "price" : "title"
+        attemptFetch(sortBy, ascending: segment.selectedSegmentIndex != 0)
+        tableView.reloadData()
     }
     
     func generateTestData() {
