@@ -77,6 +77,7 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
             lblTitle.text = item.title
             lblPrice.text = String(describing: item.price)
             lblDetails.text = item.details
+            img.image = item.toImage?.image as? UIImage
             
             if let store = item.toStore {
                 var x = 0
