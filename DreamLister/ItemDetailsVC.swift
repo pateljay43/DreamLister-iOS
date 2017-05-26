@@ -64,10 +64,25 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
         let fetchReq: NSFetchRequest<Store> = Store.fetchRequest()
         do {
             self.stores = try context.fetch(fetchReq)
+            if stores.count == 0 {
+                generateStoreData()
+            }
             self.picker.reloadAllComponents()
         } catch let err as NSError {
             print(err.debugDescription)
         }
+    }
+    
+    func generateStoreData() {
+        let store = Store(context: context)
+        store.name = "Apple"
+        let store2 = Store(context: context)
+        store2.name = "Best Buy"
+        let store3 = Store(context: context)
+        store3.name = "Costco"
+        let store4 = Store(context: context)
+        store4.name = "Tesla Dealership"
+        appDelegate.saveContext()
     }
     
     func loadItemData() {
