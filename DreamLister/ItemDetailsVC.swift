@@ -112,7 +112,7 @@ class ItemDetailsVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSou
             item.title = title
         }
         if let price = lblPrice.text {
-            item.price = Double(price)!
+            item.price = Double(price) ?? 0.0
         }
         if let details = lblDetails.text {
             item.details = details
